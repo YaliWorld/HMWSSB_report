@@ -282,5 +282,3 @@ def process_combined():
         flash('Invalid file type. Please upload CSV files only.')
         return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    app.run(debug=True)
