@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to Excel Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .requirements {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .requirements h3 {
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+
+        .requirements ul {
+            margin-left: 20px;
+        }
+
+        .requirements li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .file-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSV to Excel Processor</h1>
+        
+        <div class="requirements">
+            <h3>File Requirements</h3>
+            <ul>
+                <li>Files must be in CSV format</li>
+                <li>Required columns: <strong>ISGOVTCAN</strong>, <strong>DIVNCODE</strong>, <strong>LASTDEMAND</strong></li>
+                <li>Maximum file size: 16MB</li>
+                <li>Data will be split by ISGOVTCAN (Yes/No) and sorted by LASTDEMAND (descending)</li>
+            </ul>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Single File Processing -->
+        <div class="section">
+            <h2>Process Single Category File</h2>
+            <form action="/process_single" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Select CSV File:</label>
+                    <input type="file" id="file" name="file" accept=".csv" required>
+                    <div class="file-info">Upload a Category A or B CSV file</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category">
+                        <option value="A">Category A</option>
+                        <option value="B">Category B</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn">Process Single File</button>
+            </form>
+        </div>
+
+        <!-- Combined File Processing -->
+        <div class="section">
+            <h2>Process Combined Categories</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Upload both Category A and B files to get individual processed files plus a combined file. 
+                All files will be returned in a ZIP archive.
+            </p>
+            <form action="/process_combined" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file_a">Category A CSV File:</label>
+                    <input type="file" id="file_a" name="file_a" accept=".csv" required>
+                    <div class="file-info">Upload Category A CSV file</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file_b">Category B CSV File:</label>
+                    <input type="file" id="file_b" name="file_b" accept=".csv" required>
+                    <div class="file-info">Upload Category B CSV file</div>
+                </div>
+                
+                <button type="submit" class="btn">Process Combined Files</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive feedback for file selection
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const fileInfo = this.nextElementSibling;
+                    if (fileInfo && fileInfo.classList.contains('file-info')) {
+                        fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                        fileInfo.style.color = '#667eea';
+                    }
+                }
+            });
+        });
+
+        // Add loading state to buttons
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.btn');
+                button.textContent = 'Processing...';
+                button.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>
